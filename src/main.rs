@@ -32,7 +32,7 @@ async fn post_foo_name(Path(name): Path<String>) -> Json<Value> {
 async fn notfound_handler(uri: OriginalUri) -> impl IntoResponse {
     (
         StatusCode::NOT_FOUND,
-        Json(json!({ "message": "ไม่เจอหวะไอ้ควาย", "uri": uri.to_string() })),
+        Json(json!({ "message": "Not Found", "uri": uri.to_string() })),
     )
 }
 
