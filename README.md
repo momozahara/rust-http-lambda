@@ -4,4 +4,8 @@
 
 [cargo-lambda](https://www.cargo-lambda.info/)
 
-Add Trigger API Gateway with default setting
+Add Trigger API Gateway with
+```
+/fn_name          -> function
+/fn_name/{proxy+} -> function
+```
