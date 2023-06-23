@@ -56,7 +56,7 @@ async fn main() -> Result<(), Error> {
         .route("/foo/:name", post(post_foo_name));
 
     let nested_router = Router::new()
-        // I'm not sure this is lambda black magic or done by lambda-http crate
+        // I'm not sure this is API Gateway black magic or done by lambda-http crate
         // https://id.execute-api.region.amazonaws.com/default/fn_name <-- what you think it is
         // https://id.execute-api.region.amazonaws.com/default/default/fn_name <-- what it actually is
         .nest("/:stage/:stage/:fnname", router)
