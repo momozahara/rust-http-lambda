@@ -59,6 +59,7 @@ async fn main() -> Result<(), Error> {
         // I'm not sure this is API Gateway black magic or done by lambda-http crate
         // https://id.execute-api.region.amazonaws.com/default/fn_name <-- what you think it is
         // https://id.execute-api.region.amazonaws.com/default/default/fn_name <-- what it actually is
+        //.nest("/:stage", router) <-- even when using custom domain example.com/stage_name still appear on uri
         .nest("/:stage/:stage/:fnname", router)
         .fallback(notfound_handler);
 
