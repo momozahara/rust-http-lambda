@@ -56,11 +56,9 @@ async fn main() -> Result<(), Error> {
         .route("/foo/:name", post(post_foo_name));
 
     let nested_router = Router::new()
-        // I'm not sure this is API Gateway black magic or done by lambda-http crate
-        // https://id.execute-api.region.amazonaws.com/default/fn_name <-- what you think it is
-        // https://id.execute-api.region.amazonaws.com/default/default/fn_name <-- what it actually is
-        //.nest("/:stage", router) <-- even when using custom domain example.com/stage_name still appear on uri
-        .nest("/:stage/:stage/:fnname", router)
+        // just found a trick
+        // don't create new api from lambda, create api with $stage then manual route to lambda
+        .nest("/", router)
         .fallback(notfound_handler);
 
     let app = NormalizePathLayer::trim_trailing_slash().layer(nested_router);
