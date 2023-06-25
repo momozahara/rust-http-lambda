@@ -2,6 +2,7 @@
 name = "http-lambda"
 version = "0.1.0"
 edition = "2021"
+default-run = "http-lambda"
 
 # Starting in Rust 1.62 you can use `cargo add` to add dependencies
 # to your project.
@@ -18,10 +19,18 @@ edition = "2021"
 axum = "0.6.18"
 lambda_http = "0.8.1"
 lambda_runtime = "0.8.1"
+openssl = { version = "0.10.55", features = ["vendored"] }
+serde = "1.0.164"
 serde_json = "1.0.97"
 tokio = { version = "1", features = ["macros"] }
 tower = "0.4.13"
 tower-http = { version = "0.4.1", features = ["normalize-path"] }
 tracing = { version = "0.1", features = ["log"] }
 tracing-subscriber = { version = "0.3", default-features = false, features = ["fmt", "ansi"] }
+prisma-client-rust = { git = "https://github.com/Brendonovich/prisma-client-rust", default-features = false, features = ["mongodb"]}
 
+[workspace]
+resolver = "2"
+members = [
+  "prisma-cli"
+]

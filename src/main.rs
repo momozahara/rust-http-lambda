@@ -1,39 +1,30 @@
+#[allow(warnings, unused)]
+mod prisma;
+
 use axum::{
-    extract::{OriginalUri, Path},
-    http::StatusCode,
     response::{IntoResponse, Json},
-    routing::{get, post},
-    Router,
+    routing::get,
+    Extension, Router,
 };
 use lambda_http::{run, Error};
-use serde_json::{json, Value};
+use prisma::{channel, PrismaClient, SortOrder};
+use serde_json::json;
+use std::sync::Arc;
 use tower::Layer;
 use tower_http::normalize_path::NormalizePathLayer;
 
-async fn root() -> Json<Value> {
-    Json(json!({ "msg": "I am GET /" }))
-}
+type Client = Extension<Arc<PrismaClient>>;
 
-async fn get_foo() -> Json<Value> {
-    Json(json!({ "msg": "I am GET /foo" }))
-}
+async fn get_channel(client: Client) -> impl IntoResponse {
+    let channels = client
+        .channel()
+        .find_many(vec![])
+        .order_by(channel::weight::order(SortOrder::Asc))
+        .exec()
+        .await
+        .unwrap();
 
-async fn post_foo() -> Json<Value> {
-    Json(json!({ "msg": "I am POST /foo" }))
-}
-
-async fn post_foo_name(Path(name): Path<String>) -> Json<Value> {
-    Json(json!({
-        "msg": format!("I am POST /foo/:name, name={name}")
-    }))
-}
-
-// life saver
-async fn notfound_handler(uri: OriginalUri) -> impl IntoResponse {
-    (
-        StatusCode::NOT_FOUND,
-        Json(json!({ "message": "Not Found", "uri": uri.to_string() })),
-    )
+    Json(json!({ "channels": channels }))
 }
 
 #[tokio::main]
@@ -50,16 +41,21 @@ async fn main() -> Result<(), Error> {
         .without_time()
         .init();
 
+    let client = Arc::new(
+        PrismaClient::_builder()
+            .build()
+            .await
+            .expect("Failed to build prisma client."),
+    );
+
     let router = Router::new()
-        .route("/", get(root))
-        .route("/foo", get(get_foo).post(post_foo))
-        .route("/foo/:name", post(post_foo_name));
+        .route("/get", get(get_channel))
+        .layer(Extension(client));
 
     let nested_router = Router::new()
         // just found a trick
         // don't create new api from lambda, create api with $stage then manual route to lambda
-        .nest("/", router)
-        .fallback(notfound_handler);
+        .nest("/channel", router);
 
     let app = NormalizePathLayer::trim_trailing_slash().layer(nested_router);
 

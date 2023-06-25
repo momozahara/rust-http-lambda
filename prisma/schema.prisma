@@ -1,0 +1,21 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "cargo prisma"
+  output   = "../src/prisma.rs"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+model Channel {
+  id     String @id @default(auto()) @map("_id") @db.ObjectId
+  key    String @unique
+  name   String @unique
+  weight Int    @unique
+
+  @@map("channel")
+}
