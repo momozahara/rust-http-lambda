@@ -3,6 +3,7 @@
 ## Build and Deploy
 
 [cargo-lambda](https://www.cargo-lambda.info/)
+[prisma-client-rust](https://prisma.brendonovich.dev/)
 
 Add Trigger API Gateway with
 ```
