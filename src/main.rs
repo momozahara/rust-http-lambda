@@ -1,31 +1,14 @@
 #[allow(warnings, unused)]
 mod prisma;
 
-use axum::{
-    response::{IntoResponse, Json},
-    routing::get,
-    Extension, Router,
-};
+mod route;
+
+use axum::Router;
 use lambda_http::{run, Error};
-use prisma::{channel, PrismaClient, SortOrder};
-use serde_json::json;
+use prisma::PrismaClient;
 use std::sync::Arc;
 use tower::Layer;
 use tower_http::normalize_path::NormalizePathLayer;
-
-type Client = Extension<Arc<PrismaClient>>;
-
-async fn get_channel(client: Client) -> impl IntoResponse {
-    let channels = client
-        .channel()
-        .find_many(vec![])
-        .order_by(channel::weight::order(SortOrder::Asc))
-        .exec()
-        .await
-        .unwrap();
-
-    Json(json!({ "channels": channels }))
-}
 
 #[tokio::main]
 async fn main() -> Result<(), Error> {
@@ -48,14 +31,9 @@ async fn main() -> Result<(), Error> {
             .expect("Failed to build prisma client."),
     );
 
-    let router = Router::new()
-        .route("/get", get(get_channel))
-        .layer(Extension(client));
-
     let nested_router = Router::new()
-        // just found a trick
-        // don't create new api from lambda, create api with $stage then manual route to lambda
-        .nest("/channel", router);
+        // channel
+        .nest("/channel", route::get_router(client));
 
     let app = NormalizePathLayer::trim_trailing_slash().layer(nested_router);
 
