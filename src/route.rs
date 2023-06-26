@@ -38,7 +38,11 @@ async fn get_channel(client: Client, querys: Option<Query<ChannelFilter>>) -> im
 
     let channels = client
         .channel()
-        .find_many(vec![channel::weight::in_vec(finds)])
+        .find_many(if finds.len() == 0 {
+            vec![]
+        } else {
+            vec![channel::weight::in_vec(finds)]
+        })
         .order_by(channel::weight::order(order))
         .exec()
         .await
