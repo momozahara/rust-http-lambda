@@ -27,7 +27,9 @@ async fn get_channel(client: Client, querys: Option<Query<ChannelFilter>>) -> im
 
     if let Some(q) = querys {
         if let Some(w) = q.weight.clone() {
-            let fl = w.split(',').map(|n| n.parse::<i32>().unwrap_or(-1));
+            let fl = w
+                .split(',')
+                .map(|n| n.replace(" ", "").parse::<i32>().unwrap_or(-1));
             for f in fl {
                 if f < 0 {
                     continue;
