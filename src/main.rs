@@ -32,8 +32,9 @@ async fn main() -> Result<(), Error> {
     );
 
     let nested_router = Router::new()
+        .nest("/fake", route::get_fake_route())
         // channel
-        .nest("/channel", route::get_router(client));
+        .nest("/channel", route::get_channel_route(client));
 
     let app = NormalizePathLayer::trim_trailing_slash().layer(nested_router);
 

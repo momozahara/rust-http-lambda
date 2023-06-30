@@ -4,3 +4,6 @@
 .env
 
 /src/prisma.rs
+
+build.sh
+deploy.sh

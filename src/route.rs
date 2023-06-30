@@ -60,9 +60,19 @@ async fn get_channel(client: Client, querys: Option<Query<ChannelFilter>>) -> im
     Json(json!({ "channels": channels }))
 }
 
-pub fn get_router(client: Arc<PrismaClient>) -> Router<(), Body> {
-    let route = Router::new()
+use fake::{faker::name::raw::*, locales::*, Fake};
+
+async fn get_name() -> impl IntoResponse {
+    let name: String = FirstName(EN).fake();
+    Json(json!({ "name": name }))
+}
+
+pub fn get_fake_route() -> Router<(), Body> {
+    Router::new().route("/name", get(get_name))
+}
+
+pub fn get_channel_route(client: Arc<PrismaClient>) -> Router<(), Body> {
+    Router::new()
         .route("/get", get(get_channel))
-        .layer(Extension(client));
-    route
+        .layer(Extension(client))
 }
