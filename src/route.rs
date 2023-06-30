@@ -12,6 +12,7 @@ channel::select!(select_except_id {
     name
     weight
 });
+channel::select!(select_only_weight { weight });
 
 type Client = Extension<Arc<PrismaClient>>;
 
@@ -60,6 +61,23 @@ async fn get_channel(client: Client, querys: Option<Query<ChannelFilter>>) -> im
     Json(json!({ "channels": channels }))
 }
 
+async fn get_channel_count(client: Client) -> impl IntoResponse {
+    let count = client.channel().count(vec![]).exec().await.unwrap();
+    let channels: Vec<i32> = client
+        .channel()
+        .find_many(vec![])
+        .order_by(channel::weight::order(SortOrder::Asc))
+        .select(select_only_weight::select())
+        .exec()
+        .await
+        .unwrap()
+        .iter()
+        .map(|c| c.weight)
+        .collect();
+
+    Json(json!({ "count": count, "channels": channels }))
+}
+
 use fake::{faker::name::raw::*, locales::*, Fake};
 
 async fn get_name() -> impl IntoResponse {
@@ -74,5 +92,6 @@ pub fn get_fake_route() -> Router<(), Body> {
 pub fn get_channel_route(client: Arc<PrismaClient>) -> Router<(), Body> {
     Router::new()
         .route("/get", get(get_channel))
+        .route("/count", get(get_channel_count))
         .layer(Extension(client))
 }
