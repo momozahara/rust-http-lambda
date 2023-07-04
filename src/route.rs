@@ -7,13 +7,6 @@ use serde_json::json;
 
 use crate::prisma::{channel, PrismaClient, SortOrder};
 
-channel::select!(select_except_id {
-    v_key
-    name
-    weight
-});
-channel::select!(select_only_weight { weight });
-
 type Client = Extension<Arc<PrismaClient>>;
 
 #[derive(Deserialize)]
@@ -53,7 +46,7 @@ async fn get_channel(client: Client, querys: Option<Query<ChannelFilter>>) -> im
             vec![channel::weight::in_vec(finds)]
         })
         .order_by(channel::weight::order(order))
-        .select(select_except_id::select())
+        .select(channel::select!({ v_key id weight }))
         .exec()
         .await
         .unwrap();
@@ -67,7 +60,7 @@ async fn get_channel_count(client: Client) -> impl IntoResponse {
         .channel()
         .find_many(vec![])
         .order_by(channel::weight::order(SortOrder::Asc))
-        .select(select_only_weight::select())
+        .select(channel::select!({ weight }))
         .exec()
         .await
         .unwrap()
