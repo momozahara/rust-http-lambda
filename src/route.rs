@@ -38,6 +38,7 @@ async fn get_channel(client: Client, querys: Option<Query<ChannelFilter>>) -> im
         }
     }
 
+    #[allow(bindings_with_variant_name)]
     let channels = client
         .channel()
         .find_many(if finds.len() == 0 {
@@ -46,7 +47,7 @@ async fn get_channel(client: Client, querys: Option<Query<ChannelFilter>>) -> im
             vec![channel::weight::in_vec(finds)]
         })
         .order_by(channel::weight::order(order))
-        .select(channel::select!({ v_key name weight }))
+        .select(channel::select!({ key name weight }))
         .exec()
         .await
         .unwrap();
