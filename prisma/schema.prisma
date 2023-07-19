@@ -15,7 +15,7 @@ model Channel {
   id     String @id @default(auto()) @map("_id") @db.ObjectId
   // rename to v_key and map to origin key name
   // name key are duplicated when deserialize by cargo prisma
-  key    String @unique @map("key")
+  ckey   String @unique @map("key")
   name   String @unique
   weight Int    @unique
 
