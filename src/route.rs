@@ -72,11 +72,12 @@ async fn get_channel_count(client: Client) -> impl IntoResponse {
     Json(json!({ "count": count, "channels": channels }))
 }
 
-use fake::{faker::name::raw::*, locales::*, Fake};
 
 async fn get_name() -> impl IntoResponse {
+    use fake::{faker::name::raw::*, locales::*, Fake};
     let name: String = FirstName(EN).fake();
-    Json(json!({ "name": name }))
+    let lastname: String = LastName(EN).fake();
+    Json(json!({ "name": name, "lastname": lastname }))
 }
 
 pub fn get_fake_route() -> Router<(), Body> {
