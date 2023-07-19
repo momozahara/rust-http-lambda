@@ -6,7 +6,7 @@ use serde::Deserialize;
 use serde_json::json;
 
 use crate::prisma::{channel, PrismaClient, SortOrder};
-use crate::prisma_type::channel_without_id;
+use crate::prisma_type::{channel_select_weight, channel_select_without_id};
 
 type Client = Extension<Arc<PrismaClient>>;
 
@@ -48,7 +48,7 @@ async fn get_channel(client: Client, querys: Option<Query<ChannelFilter>>) -> im
             vec![channel::weight::in_vec(finds)]
         })
         .order_by(channel::weight::order(order))
-        .select(channel_without_id::select())
+        .select(channel_select_without_id::select())
         .exec()
         .await
         .unwrap();
