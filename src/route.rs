@@ -6,6 +6,7 @@ use serde::Deserialize;
 use serde_json::json;
 
 use crate::prisma::{channel, PrismaClient, SortOrder};
+use crate::prisma_type::channel_without_id;
 
 type Client = Extension<Arc<PrismaClient>>;
 
@@ -47,7 +48,7 @@ async fn get_channel(client: Client, querys: Option<Query<ChannelFilter>>) -> im
             vec![channel::weight::in_vec(finds)]
         })
         .order_by(channel::weight::order(order))
-        .select(channel::select!({ key name weight }))
+        .select(channel_without_id::select())
         .exec()
         .await
         .unwrap();
@@ -72,9 +73,9 @@ async fn get_channel_count(client: Client) -> impl IntoResponse {
     Json(json!({ "count": count, "channels": channels }))
 }
 
-
 async fn get_name() -> impl IntoResponse {
     use fake::{faker::name::raw::*, locales::*, Fake};
+
     let name: String = FirstName(EN).fake();
     let lastname: String = LastName(EN).fake();
     Json(json!({ "name": name, "lastname": lastname }))
