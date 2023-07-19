@@ -57,12 +57,13 @@ async fn get_channel(client: Client, querys: Option<Query<ChannelFilter>>) -> im
 }
 
 async fn get_channel_count(client: Client) -> impl IntoResponse {
+    // NOTE: I known we can just do channels len but just to show how count work for myself
     let count = client.channel().count(vec![]).exec().await.unwrap();
     let channels: Vec<i32> = client
         .channel()
         .find_many(vec![])
         .order_by(channel::weight::order(SortOrder::Asc))
-        .select(channel::select!({ weight }))
+        .select(channel_select_weight::select())
         .exec()
         .await
         .unwrap()

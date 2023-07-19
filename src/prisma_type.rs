@@ -5,3 +5,5 @@ channel::select!(channel_select_without_id {
     name
     weight
 });
+
+channel::select!(channel_select_weight { weight });
