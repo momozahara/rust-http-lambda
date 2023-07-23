@@ -1,4 +1,5 @@
 use std::sync::Arc;
+mod channel_select;
 
 use axum::{extract::Query, response::IntoResponse, routing::get, Extension, Json, Router};
 use lambda_http::Body;
@@ -6,7 +7,7 @@ use serde::Deserialize;
 use serde_json::json;
 
 use crate::prisma::{channel, PrismaClient, SortOrder};
-use crate::prisma_type::{channel_select_weight, channel_select_without_id};
+use channel_select::{channel_select_weight, channel_select_without_id};
 
 type Client = Extension<Arc<PrismaClient>>;
 

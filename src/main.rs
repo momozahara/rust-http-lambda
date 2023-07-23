@@ -1,6 +1,5 @@
 #[allow(warnings, unused)]
 mod prisma;
-
 mod route;
 
 use axum::Router;
