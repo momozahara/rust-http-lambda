@@ -2,7 +2,7 @@
 mod prisma;
 mod route;
 
-use axum::Router;
+use axum::{middleware, Router};
 use lambda_http::{run, Error};
 use prisma::PrismaClient;
 use std::sync::Arc;
@@ -32,8 +32,8 @@ async fn main() -> Result<(), Error> {
 
     let nested_router = Router::new()
         .nest("/fake", route::get_fake_route())
-        // channel
-        .nest("/channel", route::get_channel_route(client));
+        .nest("/channel", route::get_channel_route(client))
+        .layer(middleware::from_fn(route::info_middleware));
 
     let app = NormalizePathLayer::trim_trailing_slash().layer(nested_router);
 

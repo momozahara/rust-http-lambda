@@ -1,10 +1,13 @@
-use std::sync::Arc;
 mod channel_select;
 
+use axum::http::Request;
+use axum::middleware::Next;
 use axum::{extract::Query, response::IntoResponse, routing::get, Extension, Json, Router};
 use lambda_http::Body;
 use serde::Deserialize;
 use serde_json::json;
+use std::sync::Arc;
+use tracing::info;
 
 use crate::prisma::{channel, PrismaClient, SortOrder};
 use channel_select::{channel_select_weight, channel_select_without_id};
@@ -58,7 +61,7 @@ async fn get_channel(client: Client, querys: Option<Query<ChannelFilter>>) -> im
 }
 
 async fn get_channel_count(client: Client) -> impl IntoResponse {
-    // NOTE: I known we can just do channels len but just to show how count work for myself
+    // NOTE: I known we can just do channels len but just to show how count work as a note for myself
     let count = client.channel().count(vec![]).exec().await.unwrap();
     let channels: Vec<i32> = client
         .channel()
@@ -85,6 +88,13 @@ async fn get_name() -> impl IntoResponse {
 
 pub fn get_fake_route() -> Router<(), Body> {
     Router::new().route("/name", get(get_name))
+}
+
+pub async fn info_middleware<B>(request: Request<B>, next: Next<B>) -> impl IntoResponse {
+    let uri = request.uri().path_and_query().unwrap().to_string();
+    info!("{uri}");
+
+    next.run(request).await
 }
 
 pub fn get_channel_route(client: Arc<PrismaClient>) -> Router<(), Body> {
