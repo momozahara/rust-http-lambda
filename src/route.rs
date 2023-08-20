@@ -4,12 +4,13 @@ use axum::http::Request;
 use axum::middleware::Next;
 use axum::{extract::Query, response::IntoResponse, routing::get, Extension, Json, Router};
 use lambda_http::Body;
+use prisma_client_rust::Direction;
 use serde::Deserialize;
 use serde_json::json;
 use std::sync::Arc;
 use tracing::info;
 
-use crate::prisma::{channel, PrismaClient, SortOrder};
+use crate::prisma::{channel, PrismaClient};
 use channel_select::{channel_select_weight, channel_select_without_id};
 
 type Client = Extension<Arc<PrismaClient>>;
@@ -22,7 +23,7 @@ struct ChannelFilter {
 
 async fn get_channel(client: Client, querys: Option<Query<ChannelFilter>>) -> impl IntoResponse {
     let mut finds: Vec<i32> = vec![];
-    let mut order: SortOrder = SortOrder::Asc;
+    let mut order: Direction = Direction::Asc;
 
     if let Some(q) = querys {
         if let Some(w) = q.weight.clone() {
@@ -38,7 +39,7 @@ async fn get_channel(client: Client, querys: Option<Query<ChannelFilter>>) -> im
         }
         if let Some(o) = q.order.clone() {
             if o.to_lowercase().as_str() == "desc" {
-                order = SortOrder::Desc;
+                order = Direction::Desc;
             }
         }
     }
@@ -66,7 +67,7 @@ async fn get_channel_count(client: Client) -> impl IntoResponse {
     let channels: Vec<i32> = client
         .channel()
         .find_many(vec![])
-        .order_by(channel::weight::order(SortOrder::Asc))
+        .order_by(channel::weight::order(Direction::Asc))
         .select(channel_select_weight::select())
         .exec()
         .await
