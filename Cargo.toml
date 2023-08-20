@@ -27,7 +27,7 @@ tower = "0.4.13"
 tower-http = { version = "0.4.1", features = ["normalize-path"] }
 tracing = { version = "0.1", features = ["log"] }
 tracing-subscriber = { version = "0.3", default-features = false, features = ["fmt", "ansi"] }
-prisma-client-rust = { git = "https://github.com/Brendonovich/prisma-client-rust", default-features = false, features = ["mongodb"]}
+prisma-client-rust = { git = "https://github.com/Brendonovich/prisma-client-rust", tag = "0.6.9", default-features = false, features = ["mongodb"]}
 fake = "2.6.1"
 
 [workspace]
